@@ -770,6 +770,112 @@ body::after {
 #toast.visible { display: block; animation: toastIn 0.3s var(--ease-out); }
 @keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
 
+/* ─────────────────── LIVE FEED PANEL ─────────────────── */
+#feedPanel {
+  position: fixed;
+  bottom: var(--stat-h);
+  right: 0;
+  width: 360px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: rgba(2,2,2,0.96);
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  transition: height 0.35s var(--ease-out);
+  height: 300px;
+  max-height: 300px;
+}
+#feedPanel.collapsed { height: 34px; max-height: 34px; overflow: hidden; }
+
+#feedPanel::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: linear-gradient(180deg, var(--orange), transparent);
+  z-index: 1;
+}
+
+.feed-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 12px;
+  height: 34px; flex-shrink: 0;
+  border-bottom: 1px solid var(--border-faint);
+  background: rgba(0,0,0,0.6);
+  position: relative; z-index: 2;
+}
+.feed-header-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--orange); box-shadow: 0 0 6px var(--orange);
+  animation: liveBlink 1.4s ease-in-out infinite; flex-shrink: 0;
+}
+.feed-header-title {
+  font-family: var(--font-display); font-size: 0.46rem;
+  letter-spacing: 0.25em; color: var(--orange); flex: 1;
+}
+.feed-header-count {
+  font-family: var(--font-display); font-size: 0.5rem;
+  color: rgba(255,255,255,0.25); letter-spacing: 0.1em;
+}
+#feedToggle {
+  background: none; border: none;
+  color: rgba(255,255,255,0.3); font-size: 0.6rem;
+  cursor: pointer; padding: 0 4px;
+  transition: color 0.2s; line-height: 1;
+}
+#feedToggle:hover { color: var(--orange); }
+
+#feedList {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  padding: 4px 0;
+}
+#feedList::-webkit-scrollbar { width: 2px; }
+#feedList::-webkit-scrollbar-thumb { background: var(--border); }
+
+.feed-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 5px 12px 5px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.15s;
+  cursor: default;
+  flex-shrink: 0;
+}
+.feed-item:hover { background: rgba(255,255,255,0.025); }
+
+/* Left colour bar */
+.feed-item::before {
+  content: '';
+  position: absolute; left: 0;
+  width: 2px; height: 100%;
+  opacity: 0;
+}
+
+.feed-time {
+  font-size: 0.46rem; letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.2);
+  white-space: nowrap; flex-shrink: 0;
+  padding-top: 1px;
+  font-family: var(--font);
+}
+
+.feed-msg {
+  font-size: 0.54rem; letter-spacing: 0.04em;
+  line-height: 1.55; word-break: break-word;
+}
+
+/* Type colouring */
+.feed-flight .feed-msg  { color: rgba(255,215,0,0.85); }
+.feed-threat .feed-msg  { color: rgba(255,102,0,0.9); }
+.feed-news   .feed-msg  { color: rgba(255,255,255,0.55); }
+.feed-system .feed-msg  { color: rgba(255,255,255,0.3); }
+
+.feed-flight { border-left: 1px solid rgba(255,215,0,0.15); }
+.feed-threat { border-left: 1px solid rgba(255,102,0,0.25); background: rgba(255,102,0,0.025); }
+.feed-news   { border-left: 1px solid rgba(255,255,255,0.06); }
+.feed-system { border-left: 1px solid rgba(255,255,255,0.04); }
+
 /* ─────────────────── ANIMATION HELPER ─────────────────── */
 .anim-pulse { animation: elemPulse 0.5s ease; }
 @keyframes elemPulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
@@ -783,6 +889,13 @@ body::after {
 /* ─────────────────── UTIL ─────────────────── */
 .hidden { display: none !important; }
 
+/* Feed panel shifts left when intel panel opens */
+#intelPanel.open ~ #feedPanel,
+body.intel-open #feedPanel {
+  right: var(--panel-w);
+  transition: right 0.45s var(--ease-out), height 0.35s var(--ease-out);
+}
+
 /* ─────────────────── RESPONSIVE ─────────────────── */
 @media (max-width: 768px) {
   :root { --panel-w: 100vw; }
@@ -791,4 +904,5 @@ body::after {
   .search-wrap { max-width: 200px; }
   #leftPanel { display: none; }
   #modeBar { display: none; }
+  #feedPanel { width: 100%; }
 }

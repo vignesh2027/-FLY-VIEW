@@ -42,12 +42,14 @@ class OrionApp {
     this.threats = null;
     this.news    = null;
     this.ui      = null;
+    this.feed    = null;
     this.mode    = CONFIG.MODES.ATLAS;
     this._timers = [];
   }
 
   async init() {
-    this.ui = new UIManager();
+    this.ui   = new UIManager();
+    this.feed = new LiveFeedManager();
     this.ui.showLoading('BOOTING ORION SYSTEMS...');
 
     try {
@@ -77,6 +79,15 @@ class OrionApp {
       this._bindEvents();
       this._startTimers();
       this._updateCorridorList();
+
+      // Boot live feed
+      this.feed.init();
+      this.feed.ingestFlights(flightResult.value || []);
+      this.feed.ingestThreats(threatResult.value || []);
+      if (this.news.articles?.length) this.feed.ingestNews(this.news.articles);
+
+      // Listen for OTX pulses
+      window.addEventListener('otxPulses', e => this.feed.ingestOTXPulses(e.detail));
 
       this.ui.toast('ORION ONLINE · ' + fc.toLocaleString() + ' AIRCRAFT TRACKED', 'success', 4000);
       this.ui.hideLoading();
@@ -227,10 +238,17 @@ class OrionApp {
       const tc = (th.value||[]).length;
       this.ui.updateStats(fc, tc);
       this._updateCorridorList();
+      // Push new data into feed
+      if (fl.value) this.feed.ingestFlights(fl.value);
+      if (th.value) this.feed.ingestThreats(th.value);
+      // Update feed event count
+      const countEl = document.getElementById('feedCount');
+      if (countEl) countEl.textContent = (this.feed._items.length) + ' EVENTS';
     }, CONFIG.FLIGHT_REFRESH));
 
-    this._timers.push(setInterval(() => {
-      this.news.fetchNews();
+    this._timers.push(setInterval(async () => {
+      const articles = await this.news.fetchNews();
+      if (articles?.length) this.feed.ingestNews(articles.slice(0, 2));
     }, CONFIG.NEWS_REFRESH));
 
     // Live clock tick

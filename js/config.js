@@ -1,6 +1,7 @@
 const CONFIG = {
   CESIUM_TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiY2Q0MjA5MC0zZGI4LTRjNWMtOTQ2Yi0wNGQ3MmU1ZWQ1ZmYiLCJpZCI6NDMzMDY3LCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3NzkxMDk0Mzl9.OMwIrjCSeSviKsHPthE4u1ztCWXb5Dw4XzXy4DQyqGY',
   AVIATION_API: 'eb36799a043cb49c94bea18fbba9a701',
+  OTX_KEY: 'd015b38d2d76ea6df0e0d51db06777846399c855826f2d86f8758a37a8bf17c6',
 
   FLIGHT_APIS: [
     'https://api.adsb.lol/v2/all',
@@ -17,16 +18,18 @@ const CONFIG = {
   NEWS_FEEDS: [
     'https://feeds.feedburner.com/TechCrunch',
     'https://www.wired.com/feed/rss',
-    'https://feeds.arstechnica.com/arstechnica/index'
+    'https://feeds.arstechnica.com/arstechnica/index',
+    'https://www.darkreading.com/rss.xml',
+    'https://krebsonsecurity.com/feed/'
   ],
 
   MODES: { ATLAS: 'atlas', STORM: 'storm', TRANSIT: 'transit' },
 
-  FLIGHT_REFRESH: 15000,
-  THREAT_REFRESH: 60000,
-  NEWS_REFRESH: 120000,
+  FLIGHT_REFRESH: 12000,
+  THREAT_REFRESH: 45000,
+  NEWS_REFRESH: 90000,
 
-  MAX_FLIGHTS_DISPLAY: 800,
+  MAX_FLIGHTS_DISPLAY: 1000,
   ARC_HEIGHT_FACTOR: 0.15,
 
   COLORS: {

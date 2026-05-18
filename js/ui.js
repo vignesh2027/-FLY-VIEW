@@ -77,6 +77,7 @@ class UIManager {
     if (!panel) return;
     this.panelOpen = true;
     panel.classList.add('open');
+    document.body.classList.add('intel-open');
 
     // Header info
     const countryEl = document.getElementById('intelCountry');
@@ -211,6 +212,7 @@ class UIManager {
   closeIntelPanel() {
     const panel = document.getElementById('intelPanel');
     if (panel) panel.classList.remove('open');
+    document.body.classList.remove('intel-open');
     this.panelOpen = false;
   }
 
