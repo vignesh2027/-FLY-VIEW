@@ -45,6 +45,7 @@ Open it and you see your corner of the world — the globe locks to your geoloca
 This is not a flight tracker. This is not a threat dashboard. This is what the world actually looks like when you see all its signals at once.
 
 ---
+![Uploading image.png…]()
 
 ## ⚡ FEATURES
 
