@@ -4,56 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>FLY-VIEW · ORION INTELLIGENCE GLOBE</title>
-  <meta name="description" content="Real-time 3D intelligence globe — live ADS-B flight traffic, cybersecurity threat telemetry, and AI news feeds on a photorealistic CesiumJS Earth. The world is data. You just need to see it.">
-  <meta name="keywords" content="flight tracker, real-time flights, ADS-B, cybersecurity, threat intelligence, 3D globe, CesiumJS, air traffic">
+  <meta name="description" content="Real-time 3D intelligence globe — live ADS-B flight traffic, cybersecurity threat telemetry, and AI news. The world is data. You just need to see it.">
   <meta name="theme-color" content="#FF6600">
-
-  <!-- Open Graph -->
   <meta property="og:title" content="FLY-VIEW · ORION Intelligence Globe">
   <meta property="og:description" content="The world is data. You just need to see it.">
-  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000'/><text x='3' y='24' font-size='22' fill='%23FF6600'>✈</text></svg>">
 
-  <!-- Favicon inline SVG -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='black'/><text x='4' y='24' font-size='22' fill='%23FF6600'>✈</text></svg>">
-
-  <!-- CesiumJS 1.111 -->
+  <!-- CesiumJS -->
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
-
-  <!-- MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
 
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ── GLOBE ── -->
+  <!-- Globe container -->
   <div id="cesiumContainer"></div>
 
-  <!-- ── CORNER MARKS ── -->
+  <!-- Corner marks -->
   <div class="corner-mark tl"></div>
   <div class="corner-mark tr"></div>
   <div class="corner-mark bl"></div>
   <div class="corner-mark br"></div>
-
-  <!-- ── CROSSHAIR ── -->
-  <div id="reticle"></div>
 
   <!-- ════════════════════════════════════════
        LOADING SCREEN
   ════════════════════════════════════════ -->
   <div id="loadingOverlay">
     <div class="loading-inner">
-      <div class="loading-logo">
-        <span class="fly">FLY</span><span class="dash">-</span><span class="view">VIEW</span>
+      <div class="loading-logo-wrap">
+        <div class="loading-logo">FLY<span class="sep">-</span>VIEW</div>
       </div>
-      <div class="loading-subtitle">ORION INTELLIGENCE GLOBE</div>
-      <div class="loading-bar-wrap">
+      <div class="loading-sub">ORION INTELLIGENCE GLOBE</div>
+      <div class="loading-bars">
         <div class="loading-bar"></div>
-        <div class="loading-bar loading-bar-2"></div>
+        <div class="loading-bar"></div>
+        <div class="loading-bar"></div>
       </div>
-      <div id="loadingText">INITIALIZING SYSTEMS...</div>
+      <div id="loadingText">INITIALIZING...</div>
       <div class="loading-dots">
         <div class="loading-dot"></div>
         <div class="loading-dot"></div>
@@ -68,38 +56,118 @@
   ════════════════════════════════════════ -->
   <div id="topBar">
 
-    <!-- Logo -->
     <div class="logo">
-      <span class="logo-main">FLY<span>-</span>VIEW</span>
-      <span class="logo-tag">ORION</span>
-      <div class="logo-pulse" title="LIVE DATA"></div>
+      <div class="logo-text">FLY<span>-</span>VIEW</div>
+      <div class="logo-sub">ORION</div>
+      <div class="live-dot" title="Live data"></div>
     </div>
 
-    <div class="bar-sep"></div>
+    <div class="bar-div"></div>
 
-    <!-- Search -->
     <div class="search-wrap">
       <span class="search-icon">⌕</span>
       <input id="searchInput" type="text"
-        placeholder="FLIGHT NUMBER · AA101 · UA287 · EK201..."
+        placeholder="FLIGHT · AA101 · EK201 · BA112..."
         autocomplete="off" spellcheck="false" maxlength="20">
       <button id="searchBtn">TRACK ▶</button>
     </div>
 
-    <!-- Mode Badge -->
     <div id="modeBadge" class="mode-badge mode-atlas">ATLAS</div>
 
-    <!-- Mode Buttons -->
     <div class="mode-wrap">
-      <button class="mode-btn active" data-mode="atlas"   title="[1] Atlas — balanced view">ATLAS</button>
-      <button class="mode-btn"        data-mode="storm"   title="[2] Storm — threat mode">STORM</button>
+      <button class="mode-btn active" data-mode="atlas"   title="[1] Atlas — balanced intelligence">ATLAS</button>
+      <button class="mode-btn"        data-mode="storm"   title="[2] Storm — threat dominance">STORM</button>
       <button class="mode-btn"        data-mode="transit" title="[3] Transit — flight density">TRANSIT</button>
     </div>
 
-    <div class="bar-sep"></div>
+    <div class="bar-div"></div>
+    <button id="refreshBtn" title="[R] Force refresh data">↻</button>
 
-    <!-- Gesture Toggle -->
-    <button id="gestureToggle" title="[G] Toggle gesture control">✋ GESTURE</button>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MODE DESCRIPTION + TICKER BAR
+  ════════════════════════════════════════ -->
+  <div id="modeBar">
+    <div id="modeDesc">BALANCED · FLIGHTS + THREATS + INTEL</div>
+    <div class="ticker-wrap">
+      <div class="ticker-label">◉ FEED</div>
+      <div id="tickerText">—</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       LEFT DATA PANEL (always visible widgets)
+  ════════════════════════════════════════ -->
+  <div id="leftPanel">
+
+    <!-- Flight count card -->
+    <div class="mini-card yellow-card">
+      <div class="mini-card-header">
+        <span class="mini-card-icon">✈</span>
+        <span class="mini-card-label">AIRBORNE NOW</span>
+      </div>
+      <div class="mini-card-value" id="miniFlights">—</div>
+      <div class="mini-card-sub">TRACKED AIRCRAFT</div>
+    </div>
+
+    <!-- Threat count card -->
+    <div class="mini-card">
+      <div class="mini-card-header">
+        <span class="mini-card-icon">⚠</span>
+        <span class="mini-card-label">THREAT ZONES</span>
+      </div>
+      <div class="mini-card-value" id="miniThreats">—</div>
+      <div class="mini-card-sub">ACTIVE INCIDENTS</div>
+    </div>
+
+    <!-- Top corridors -->
+    <div class="corridor-card">
+      <div class="corridor-card-title">▸ TOP CORRIDORS</div>
+      <div id="corridorList">
+        <div class="corridor-item">
+          <span class="corridor-name">BOM → DXB</span>
+          <div class="corridor-bar-wrap"><div class="corridor-bar" style="width:60%"></div></div>
+          <span class="corridor-count">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-card">
+      <div class="legend-card-title">◈ DATA LAYERS</div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#FFD700;color:#FFD700"></div>
+        <span class="legend-text">ACTIVE AIRCRAFT</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#FFA500;color:#FFA500"></div>
+        <span class="legend-text">FLIGHT CORRIDORS</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#FF6600;color:#FF6600"></div>
+        <span class="legend-text">CYBER THREAT</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#FF2200;color:#FF2200"></div>
+        <span class="legend-text">CRITICAL SEVERITY</span>
+      </div>
+    </div>
+
+    <!-- Key hints -->
+    <div class="keys-card">
+      <div class="keys-card-title">KEYBOARD CONTROLS</div>
+      <div class="key-row">
+        <div class="key-item"><span class="key-badge">1</span><span class="key-desc">ATLAS</span></div>
+        <div class="key-item"><span class="key-badge">2</span><span class="key-desc">STORM</span></div>
+        <div class="key-item"><span class="key-badge">3</span><span class="key-desc">TRANSIT</span></div>
+      </div>
+      <div class="key-row">
+        <div class="key-item"><span class="key-badge">R</span><span class="key-desc">REFRESH</span></div>
+        <div class="key-item"><span class="key-badge">ESC</span><span class="key-desc">CLOSE</span></div>
+        <div class="key-item"><span class="key-badge">CLICK</span><span class="key-desc">INTEL</span></div>
+      </div>
+    </div>
 
   </div>
 
@@ -108,142 +176,114 @@
   ════════════════════════════════════════ -->
   <div id="statsBar">
 
-    <div class="stat-block stat-flights">
-      <div class="stat-indicator yellow"></div>
+    <div class="stat-seg seg-flights">
+      <div class="stat-pip pip-yellow"></div>
       <div class="stat-label">FLIGHTS</div>
       <div class="stat-value" id="statFlights">—</div>
     </div>
 
-    <div class="stat-block stat-threats">
-      <div class="stat-indicator live"></div>
+    <div class="stat-seg seg-threats">
+      <div class="stat-pip pip-orange"></div>
       <div class="stat-label">THREATS</div>
       <div class="stat-value" id="statThreats">—</div>
     </div>
 
-    <div class="stat-block stat-time">
+    <div class="stat-seg seg-time">
       <div class="stat-label">UTC</div>
       <div class="stat-value" id="statTime">—</div>
     </div>
 
-    <div class="stat-block" style="border-right:none; margin-left:auto;">
-      <div class="stat-sources">LIVE · ADSB.LOL · ADSB.FI · OTX · RSS</div>
+    <div class="stat-seg" style="border-right:none;margin-left:auto;">
+      <div class="stat-tag">LIVE · ADSB.LOL · ADSB.FI · OTX · RSS FEEDS</div>
     </div>
 
   </div>
 
   <!-- ════════════════════════════════════════
-       LEGEND
-  ════════════════════════════════════════ -->
-  <div id="legend">
-    <div class="legend-title">DATA LAYER</div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#FFD700;color:#FFD700"></div>
-      ACTIVE AIRCRAFT
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#FFA500;color:#FFA500"></div>
-      FLIGHT CORRIDORS
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#FF6600;color:#FF6600"></div>
-      CYBER THREAT
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background:#FF2200;color:#FF2200"></div>
-      CRITICAL THREAT
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       KEY HINTS
-  ════════════════════════════════════════ -->
-  <div id="keyHints">
-    <span class="key">1</span> ATLAS &nbsp;&nbsp;
-    <span class="key">2</span> STORM &nbsp;&nbsp;
-    <span class="key">3</span> TRANSIT<br>
-    <span class="key">G</span> GESTURE &nbsp;&nbsp;
-    <span class="key">ESC</span> CLOSE &nbsp;&nbsp;
-    <span class="key">CLICK</span> INTEL
-  </div>
-
-  <!-- ════════════════════════════════════════
-       INTELLIGENCE PANEL (SIDEBAR)
+       INTELLIGENCE PANEL (RIGHT SIDEBAR)
   ════════════════════════════════════════ -->
   <div id="intelPanel">
     <div class="intel-header">
-      <div class="intel-label">◉ REGION INTELLIGENCE</div>
-      <div class="intel-header-top">
+
+      <div class="intel-chip">
+        <div class="intel-chip-dot"></div>
+        REGION INTELLIGENCE BRIEF
+      </div>
+
+      <div class="intel-header-row">
         <div>
           <div id="intelCountry">—</div>
-          <div id="intelCoords">—</div>
+          <div id="intelCoords">SELECT A REGION ON THE GLOBE</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="intel-actions">
           <button id="intelClose">× CLOSE</button>
-          <div class="intel-threat-ring" id="intelRing">
-            <div class="intel-ring-val" id="intelRingVal">—</div>
-            <div class="intel-ring-lbl">THREAT</div>
+          <div id="intelRing">
+            <div class="ring-val" id="intelRingVal">—</div>
+            <div class="ring-lbl">THREAT</div>
           </div>
         </div>
       </div>
+
       <div class="intel-meta">
-        <div class="intel-meta-item">
+        <div class="intel-meta-seg">
           <div class="intel-meta-key">FLIGHTS</div>
           <div class="intel-meta-val" id="metaFlights">—</div>
         </div>
-        <div class="intel-meta-item">
+        <div class="intel-meta-seg">
           <div class="intel-meta-key">ALERTS</div>
           <div class="intel-meta-val" id="metaAlerts">—</div>
         </div>
-        <div class="intel-meta-item">
+        <div class="intel-meta-seg">
           <div class="intel-meta-key">UPDATED</div>
           <div class="intel-meta-val" id="metaTime">—</div>
         </div>
       </div>
+
     </div>
 
     <div class="intel-body">
 
-      <!-- Flights Section -->
+      <!-- Active Flights -->
       <div class="intel-section">
-        <div class="intel-section-header">
-          <div class="intel-section-icon">✈</div>
-          <div class="intel-section-title">Active Flights</div>
-          <div class="intel-section-count" id="flightCount">0</div>
+        <div class="section-header">
+          <div class="section-icon">✈</div>
+          <div class="section-title">Active Flights</div>
+          <div class="section-badge" id="flightCount" style="display:none">0</div>
         </div>
         <div id="intelFlights">
-          <div class="flight-item" style="opacity:0.3">
-            <div class="flight-callsign">—</div>
-            <div class="flight-details">
-              <div class="flight-alt">Click a region on the globe</div>
-            </div>
+          <div class="empty-state">
+            <div class="empty-icon">✈</div>
+            <div class="empty-msg">Click a region on the globe</div>
           </div>
         </div>
       </div>
 
-      <!-- Threats Section -->
+      <!-- Cyber Threats -->
       <div class="intel-section">
-        <div class="intel-section-header">
-          <div class="intel-section-icon">⚠</div>
-          <div class="intel-section-title">Cyber Threat Intel</div>
-          <div class="intel-section-count" id="threatCount">0</div>
+        <div class="section-header">
+          <div class="section-icon">⚠</div>
+          <div class="section-title">Cyber Threat Intel</div>
+          <div class="section-badge" id="threatCount" style="display:none">0</div>
         </div>
         <div id="intelThreats">
-          <div class="threat-item" style="opacity:0.3">
-            <div class="threat-desc">No region selected — click the globe to load intelligence</div>
+          <div class="empty-state">
+            <div class="empty-icon">◉</div>
+            <div class="empty-msg">No region selected</div>
           </div>
         </div>
       </div>
 
-      <!-- News Section -->
+      <!-- Intelligence Feed -->
       <div class="intel-section">
-        <div class="intel-section-header">
-          <div class="intel-section-icon">◉</div>
-          <div class="intel-section-title">Intelligence Feed</div>
-          <div class="intel-section-count" id="newsCount">0</div>
+        <div class="section-header">
+          <div class="section-icon">◈</div>
+          <div class="section-title">Intelligence Feed</div>
+          <div class="section-badge" id="newsCount" style="display:none">0</div>
         </div>
         <div id="intelNews">
-          <div class="news-item" style="opacity:0.3">
-            <a href="#">Click a region to load relevant headlines</a>
+          <div class="empty-state">
+            <div class="empty-icon">◈</div>
+            <div class="empty-msg">Click a region to load headlines</div>
           </div>
         </div>
       </div>
@@ -252,47 +292,26 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       SEARCH RESULTS DROPDOWN
+       SEARCH RESULTS
   ════════════════════════════════════════ -->
-  <div id="searchResults"></div>
-
-  <!-- ════════════════════════════════════════
-       GESTURE HINT (center notification)
-  ════════════════════════════════════════ -->
-  <div id="gestureHint">
-    <div class="hint-icon"></div>
-    <div class="hint-text"></div>
+  <div id="searchResults">
+    <div class="sr-header">FLIGHT SEARCH RESULTS</div>
   </div>
 
   <!-- ════════════════════════════════════════
-       GESTURE PANEL
-  ════════════════════════════════════════ -->
-  <div id="gesturePanel" style="display:none">
-    <div class="gesture-header">
-      <div class="gesture-title">✋ GESTURE CONTROL</div>
-    </div>
-    <canvas id="gestureCanvas" width="192" height="144"></canvas>
-    <div id="gestureStatus">GESTURE: OFFLINE</div>
-    <div class="gesture-guide">
-      <div class="gesture-guide-item"><span>✈</span> V-FINGERS → TRANSIT MODE</div>
-      <div class="gesture-guide-item"><span>🛡</span> FLAT PUSH → STORM MODE</div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       TOAST NOTIFICATION
+       TOAST
   ════════════════════════════════════════ -->
   <div id="toast"></div>
 
   <!-- ════════════════════════════════════════
-       SCRIPTS (ORDER MATTERS)
+       SCRIPTS
   ════════════════════════════════════════ -->
   <script src="js/config.js"></script>
+  <script src="js/animations.js"></script>
   <script src="js/globe.js"></script>
   <script src="js/flights.js"></script>
   <script src="js/threats.js"></script>
   <script src="js/news.js"></script>
-  <script src="js/gestures.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 
